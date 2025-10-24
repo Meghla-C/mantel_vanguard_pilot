@@ -1,0 +1,33 @@
+registry_security_day_account:             #day-level cash and turnover per account (not just holder)
+  enabled: true
+  source:
+    reader_type: table_batch
+    load_type: full
+    select_query: >
+        SELECT
+          CAST(f.trade_date AS DATE) AS trade_date,
+          s.security_code,
+          s.isin,
+          i.account_number,
+          i.hin_srn,
+          COUNT(*) AS n_records,
+          SUM(CASE WHEN f.transaction_type IN ('BUY','SELL') THEN f.quantity ELSE 0 END) AS units_traded,
+          SUM(CASE WHEN f.transaction_type IN ('BUY','SELL') THEN f.gross_amount_aud ELSE 0 END) AS trade_turnover_aud,
+          SUM(f.brokerage_aud) AS brokerage_total_aud,
+          SUM(CASE WHEN f.transaction_type = 'DIVCASH' THEN f.gross_amount_aud ELSE 0 END) AS dividends_aud,
+          SUM(f.franking_credits_aud) AS franking_credits_aud,
+          SUM(f.withholding_tax_aud)  AS withholding_tax_aud,
+          SUM(f.net_amount_aud)       AS net_cash_flow_aud
+        FROM  vanguard_bronze.computershare   f     
+        LEFT JOIN vanguard_silver.security s ON f.security_code = s.security_code
+        LEFT JOIN vanguard_silver.investor i ON f.holder_id     = i.holder_id
+        GROUP BY CAST(f.trade_date AS DATE), s.security_code, s.isin, i.account_number, i.hin_srn;
+    keep_source_metadata: false
+    generated_metadata_columns_to_remove: ["md_registry_security_day_account_pk"] # Add this line to remove unnecessary metadata columns
+  target:
+    table_name: vanguard_gold.registry_security_day_account
+    writer_type: batch
+    writer_mode: overwrite 
+    exclude_columns: ["md_validation_status", "md_metadata", "md_source_name", "md_created_datetime", "md_updated_datetime", "md_deleted_datetime"]
+
+

@@ -1,0 +1,22 @@
+# Example 2: API Reader to Append Stream Writer (aligned to sample_etl_config.yml)
+
+openweather_currentweather:
+  source:
+    # --- source (API reader) ---
+    reader_type: "api"                             # uses readers/APIReader.py via AbstractAPIReader
+    host_name_secret_key: "openweather_full_url"        # looked up in scope dbw<catalog>config
+    path: ""                                            # combined with host to form full URL
+    username_secret_key: "openweather_username"         # basic auth username
+    password_secret_key: "openweather_password"         # basic auth password
+
+    read_options:                                   # currently not all options are used, but fine to include
+      timeout: 30000                                # ms (make_http_request has a fixed timeout; future PR can wire this)
+      source_watermark_column: "timestamp"           # matches AbstractAPIReader._add_api_metadata()
+
+  target:
+    # --- target (stream append writer) ---
+    writer_type: "batch"
+    table_name: "demo_ingest.openweather"
+    writer_mode: "overwrite"
+    write_options:                      # Additional write options
+      mergeSchema: true                 # Merge schemas if they differ

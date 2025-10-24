@@ -1,0 +1,37 @@
+# Sample DLT Sink Configuration
+# This configuration demonstrates how to use the DLT create_sink writer
+# to create data sinks using Databricks declarative pipelines
+
+dlt_sink_example:
+  # Note: DLT sinks are typically used within DLT pipelines to output data
+  # This configuration shows how to set up a sink, but the source would be
+  # defined within the DLT pipeline itself, not through the ETL framework
+  
+  target:
+    # Target configuration - using DLT sink writer
+    writer_type: "dlt_sink"
+    table_name: "export_schema.data_export"  # This acts as identifier for the sink
+    
+    # DLT create_sink specific parameters
+    sink_name: "data_export_sink"
+    format: "parquet"
+    options:
+      "path": "/mnt/exports/processed_data"
+      "mode": "overwrite"
+      "compression": "snappy"
+      "partitionBy": "export_date"
+    
+    # Data quality expectations before export
+    expectations:
+      - name: "valid_records"
+        constraint: "record_count > 0"
+        action: "fail"
+      - name: "complete_data"
+        constraint: "processed_timestamp IS NOT NULL"
+        action: "drop"
+    
+    # Column exclusions for export (remove internal columns)
+    exclude_columns:
+      - "internal_id"
+      - "processing_metadata"
+      - "debug_info"

@@ -1,0 +1,41 @@
+﻿source_df,source_column,transformation,target_entity,target_column,target_datatype,operation,comments
+,,"concat(element_at(split(element_at(split(replace(md_metadata_origin:file_path, '%20', ' '), '/'),-2),' '),-1),'-',date_format(to_date(element_at(split(element_at(split(replace(md_metadata_origin:file_path, '%20', ' '), '/'),-2),' '),-2),'MMMM'), 'MM'),'-',features:properties.road_pid)",geoscape_roads,geoscape_road_pk,string,PK,Primary Key of the geoscape_road record (map_version + road_pid)
+,crs:properties.name,,geoscape_roads,crs_name,string,,Coordinate Reference System (CRS) name
+,,"concat(element_at(split(element_at(split(replace(md_metadata_origin:file_path, '%20', ' '), '/'),-2),' '),-1),'-',date_format(to_date(element_at(split(element_at(split(replace(md_metadata_origin:file_path, '%20', ' '), '/'),-2),' '),-2),'MMMM'), 'MM'))",geoscape_roads,map_version,string,,Year-Month when this dataset was published
+,features:geometry,,geoscape_roads,geometry,string,,Geometry - LineString in this dataset
+,features:properties.state,,geoscape_roads,state,string,,State where the road is located
+,features:properties.access_type,,geoscape_roads,access_type,string,,"Type of access of roads (e.g., public, private)"
+,features:properties.contributor_id,,geoscape_roads,contributor_id,string,,ID of the data contributor
+,,"to_date(features:properties.date_created, 'dd-MM-yyyy')",geoscape_roads,date_created,date,,Date when the feature was created
+,,"to_date(features:properties.date_modified, 'dd-MM-yyyy')",geoscape_roads,date_modified,date,,Date when the feature was last modified
+,features:properties.hierarchy,,geoscape_roads,hierarchy,string,,Hierarchical level of roads
+,features:properties.lane_count,,geoscape_roads,lane_count,int,,Number of lanes
+,features:properties.lane_description,,geoscape_roads,lane_description,string,,Description of the lanes
+,features:properties.national_route,,geoscape_roads,national_route,string,,Indicates if the road is a national route
+,features:properties.one_way,,geoscape_roads,one_way,string,,Indicates if the road is one-way or two-way
+,features:properties.road_alias_name,,geoscape_roads,road_alias_name,string,,Alias name of the road
+,features:properties.road_alias_suffix,,geoscape_roads,road_alias_suffix,string,,"Suffix of the road alias (e.g., Directions, On/Off, etc)"
+,features:properties.road_alias_type,,geoscape_roads,road_alias_type,string,,"Type of the road alias (e.g., Road, Ramp, etc)"
+,features:properties.road_name,,geoscape_roads,road_name,string,,Name of the road
+,features:properties.road_name_label,,geoscape_roads,road_name_label,string,,Label for the road name
+,features:properties.road_pid,,geoscape_roads,road_pid,string,,Persistent Identifier (PID) of the road
+,features:properties.road_suffix,,geoscape_roads,road_suffix,string,,Suffix of the road name
+,features:properties.road_suffix_label,,geoscape_roads,road_suffix_label,string,,Label for the road suffix
+,features:properties.road_type,,geoscape_roads,road_type,string,,"Type of the road (e.g., Road, Ramp, etc)"
+,features:properties.road_type_label,,geoscape_roads,road_type_label,string,,Label for the road type
+,features:properties.speed,,geoscape_roads,speed,int,,Speed limit on the road
+,features:properties.state_route,,geoscape_roads,state_route,string,,Indicates if the road is a state route
+,features:properties.status,,geoscape_roads,status,string,,"Status of the road (e.g., operational, etc)"
+,features:properties.subtype,,geoscape_roads,subtype,string,,"Subtype of the road (e.g., Road, Ramp, etc)"
+,features:properties.surface,,geoscape_roads,surface,string,,"Surface type of the road (e.g., sealed, unsealed, etc)"
+,features:properties.trafficability,,geoscape_roads,trafficability,string,,"Trafficability of the road (e.g., 2wd, etc)"
+,features:properties.travel_direction,,geoscape_roads,travel_direction,string,,"Travel direction on the road (e.g., from to, both, etc)"
+,md_validation_status,,geoscape_roads,md_validation_status,string,,Validation Status used for Rules Engine checking
+,md_geoscape_roads_pk,,geoscape_roads,md_geoscape_roads_pk,string,,An alternative Primary Key used for metadata
+,md_metadata,,geoscape_roads,md_metadata,string,,Collection of metadata of source data (empty dict if source data is table)
+,md_source_name,,geoscape_roads,md_source_name,string,,Table name of source data
+,md_geoscape_roads_pk_origin,,geoscape_roads,md_source_id,string,,PK of the corresponding row in source table
+,md_created_datetime,,geoscape_roads,md_created_datetime,timestamp,,Date and time of record creation
+,md_updated_datetime,,geoscape_roads,md_updated_datetime,timestamp,,Date and time of record update
+,md_deleted_datetime,,geoscape_roads,md_deleted_datetime,timestamp,,Date and time of record deletion
+,md_change_status,,geoscape_roads,md_change_status,string,,Change Status of the record

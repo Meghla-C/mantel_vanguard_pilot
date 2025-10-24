@@ -1,0 +1,9 @@
+{
+  "job_info": {
+    "logger_name": "default",
+    "start_time": "2025-08-22T13:25:59.505202",
+    "batch_size": 50,
+    "log_directory": "test_logs"
+  },
+  "logs": []
+}

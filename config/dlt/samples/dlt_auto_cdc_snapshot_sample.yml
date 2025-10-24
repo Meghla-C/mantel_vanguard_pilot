@@ -1,0 +1,40 @@
+# Sample DLT Auto CDC from Snapshot Configuration
+# This configuration demonstrates how to use the DLT create_auto_cdc_from_snapshot_flow writer
+# for snapshot-based change data capture using Databricks declarative pipelines
+
+dlt_auto_cdc_snapshot_example:
+  source:
+    # Source configuration - reading from a snapshot table
+    reader_type: "table_batch"
+    table_name: "source_schema.product_snapshot"
+    source_watermark_column: "snapshot_date"
+    
+  target:
+    # Target configuration - using DLT auto CDC from snapshot writer
+    writer_type: "dlt_auto_cdc_snapshot"
+    table_name: "target_schema.products_history"
+    
+    # DLT create_auto_cdc_from_snapshot_flow specific parameters
+    keys: ["product_id"]
+    stored_as_scd_type: "2"
+    track_history_column_list: ["product_name", "price", "category", "description"]
+    track_history_except_column_list: ["internal_notes", "temp_fields"]
+    
+    comment: "Product history table created from daily snapshots with SCD Type 2"
+    
+    # Data quality expectations
+    expectations:
+      - name: "valid_product_id"
+        constraint: "product_id IS NOT NULL AND product_id != ''"
+        action: "fail"
+      - name: "valid_price"
+        constraint: "price >= 0"
+        action: "drop"
+      - name: "valid_category"
+        constraint: "category IS NOT NULL"
+        action: "drop"
+    
+    # Column exclusions
+    exclude_columns:
+      - "temp_processing_flag"
+      - "batch_id"

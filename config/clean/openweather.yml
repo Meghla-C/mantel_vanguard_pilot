@@ -1,0 +1,12 @@
+openweather_currentweather:
+  enabled: true
+  source:
+    reader_type: table_batch
+    table_name: demo_ingest.openweather         # produced by your ingest step
+  transform:
+    transform_type: json
+    mapping_config: config/clean/openweather.csv
+  target:
+    table_name: demo_clean.openweather          # choose your clean schema
+    writer_type: batch                          # or merge_batch if you have keys
+    writer_mode: overwrite                      # or append/merge as needed

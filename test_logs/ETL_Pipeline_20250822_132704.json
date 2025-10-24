@@ -1,0 +1,9 @@
+{
+  "job_info": {
+    "logger_name": "ETL_Pipeline",
+    "start_time": "2025-08-22T13:27:04.027329",
+    "batch_size": 50,
+    "log_directory": "test_logs"
+  },
+  "logs": []
+}

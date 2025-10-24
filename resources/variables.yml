@@ -1,0 +1,12 @@
+# Global variable declaration
+variables:
+  job_pause_status:
+    default: PAUSED
+  init_script_path:
+    default: ""
+  failure_email_list:
+    description: list of emails to send failure alerts to. For multiple emails, comma separate i.e. "jamie.bowden@tabcorp.com.au, jamie.bowden@mantelgroup.com.au"
+    default: ""
+  job_cluster_policy_id:
+    description: Cluster policy id for the job clusters.
+    default: ""

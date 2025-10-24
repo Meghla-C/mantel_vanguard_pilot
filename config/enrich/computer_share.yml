@@ -1,0 +1,36 @@
+investor:
+  enabled: true
+  source:
+    reader_type: table_batch
+    table_name: vanguard_bronze.computershare
+    select_query: >
+      SELECT 
+       holder_id  ,
+       account_number  ,
+       hin_srn ,
+       md_updated_datetime
+       from 
+       vanguard_bronze.computershare        
+  target:
+    table_name: vanguard_silver.investor
+    writer_type: batch
+    writer_mode: append
+
+
+security:
+  enabled: true
+  source:
+    reader_type: table_batch
+    table_name: vanguard_bronze.computershare
+    select_query: >
+      SELECT 
+       security_code  ,
+       isin  ,
+       md_updated_datetime
+       from 
+       vanguard_bronze.computershare        
+  target:
+    table_name: vanguard_silver.security
+    writer_type: batch
+    writer_mode: append
+

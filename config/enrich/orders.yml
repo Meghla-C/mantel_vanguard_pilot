@@ -1,0 +1,41 @@
+orders:
+  enabled: true
+  source:
+    reader_type: table_batch
+    table_name: demo_clean.orders
+    source_watermark_column: md_updated_datetime # use the column name that we subset in the query
+    watermark_table_name: demo_enrich.orders
+    watermark_table_datetime_column: md_updated_datetime
+    select_query: >
+      SELECT 
+        o.order_id,
+        o.customer_id,
+        c.company_name,
+        c.contact_name,
+        c.city as customer_city,
+        c.country as customer_country,
+        o.employee_id,
+        o.order_date,
+        o.required_date,
+        o.shipped_date,
+        o.ship_via,
+        -- Map shipper IDs to names
+        CASE o.ship_via
+            WHEN 1 THEN 'Speedy Express'
+            WHEN 2 THEN 'United Package'
+            WHEN 3 THEN 'Federal Shipping'
+            ELSE 'Unknown'
+        END as shipper_name,
+        o.freight,
+        o.shipping_status,
+        o.days_to_ship,
+        o.freight_category,
+        -- Determine if international order (assuming company is US-based)
+        CASE WHEN c.country != 'USA' THEN TRUE ELSE FALSE END as is_international,
+        o.md_updated_datetime
+      FROM demo_clean.orders o
+      LEFT JOIN demo_clean.customers c ON o.customer_id = c.customer_id;
+  target:
+    table_name: demo_enrich.orders
+    writer_type: batch
+    writer_mode: append

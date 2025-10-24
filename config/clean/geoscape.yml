@@ -1,0 +1,12 @@
+geoscape_roads:
+  enabled: true
+  source:
+    reader_type: table_stream
+    table_name: demo_ingest.geoscape_roads
+  transform:
+    transform_type: json
+    mapping_config: config/clean/geoscape_roads.csv
+  target:
+    table_name: demo_clean.geoscape_roads
+    writer_type: append_stream
+    trigger_type_value: {"availableNow": True}

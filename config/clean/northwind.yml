@@ -1,0 +1,115 @@
+customers:
+  enabled: true
+  source:
+    reader_type: table_batch
+    load_type: full
+    select_query: >
+      SELECT 
+        UPPER(TRIM(customerID)) as customer_id,
+        TRIM(companyName) as company_name,
+        TRIM(contactName) as contact_name,
+        TRIM(city) as city,
+        TRIM(country) as country,
+        TRIM(phone) as phone,
+        -- Group countries into regions
+        CASE 
+            WHEN country IN ('USA', 'Canada', 'Mexico') THEN 'North America'
+            WHEN country IN ('Germany', 'France', 'UK', 'Austria', 'Belgium', 'Switzerland') THEN 'Western Europe'
+            WHEN country IN ('Brazil', 'Venezuela', 'Argentina') THEN 'South America'
+            ELSE 'Other'
+        END as country_region,
+        -- Estimate company size from name patterns
+        CASE 
+            WHEN companyName LIKE '%Ltd%' OR companyName LIKE '%Inc%' OR companyName LIKE '%Corp%' THEN 'Large'
+            WHEN companyName LIKE '%&%' OR companyName LIKE '%Group%' THEN 'Medium'
+            ELSE 'Small'
+        END as company_size,
+        -- Standardize phone format (remove special characters for consistency)
+        REGEXP_REPLACE(TRIM(phone), '[^0-9+]', '') as phone_formatted
+      FROM demo_ingest.customers
+      WHERE customerID IS NOT NULL AND companyName IS NOT NULL
+  target:
+    table_name: demo_clean.customers
+    writer_type: batch
+    writer_mode: overwrite
+
+
+products:
+  enabled: true
+  source:
+    reader_type: table_batch
+    load_type: full
+    select_query: >
+      SELECT 
+        try_cast(productID as INT) as product_id,
+        TRIM(productName) as product_name,
+        try_cast(categoryID as INT) as category_id,
+        ROUND(unitPrice, 2) as unit_price,
+        COALESCE(try_cast(unitsInStock as INT), 0) as units_in_stock,
+        COALESCE(try_cast(discontinued AS BOOLEAN), 'FALSE')  as discontinued,
+        -- Categorize products by price
+        CASE 
+            WHEN ROUND(unitPrice, 2) < 20 THEN 'Budget'
+            WHEN ROUND(unitPrice, 2) < 50 THEN 'Standard'
+            ELSE 'Premium'
+        END as price_category,
+        -- Determine stock status
+        CASE 
+            WHEN unitsInStock = 0 THEN 'Out of Stock'
+            WHEN unitsInStock <= 10 THEN 'Low Stock'
+            ELSE 'In Stock'
+        END as stock_status,
+        -- Overall availability
+        CASE 
+            WHEN discontinued = TRUE THEN 'Discontinued'
+            ELSE 'Available'
+        END as availability_status
+      FROM demo_ingest.products
+      WHERE productID IS NOT NULL AND productName IS NOT NULL
+  target:
+    table_name: demo_clean.products
+    writer_type: batch
+    writer_mode: overwrite
+
+orders:
+  enabled: true
+  source:
+    reader_type: table_batch
+    table_name: demo_ingest.orders
+    source_watermark_column: md_updated_datetime # use the column name that we subset in the query
+    watermark_table_name: demo_clean.orders
+    watermark_table_datetime_column: md_updated_datetime
+    select_query: >
+      SELECT 
+        try_cast(orderID as INT) as order_id,
+        UPPER(TRIM(customerId)) as customer_id,
+        try_cast(employeeID as INT) as employee_id,
+        try_cast(orderDate as DATE) as order_date,
+        try_cast(requiredDate as DATE) as required_date,
+        try_cast(shippedDate as DATE) as shipped_date,
+        try_cast(shipVia as INT) as ship_via,
+        ROUND(freight, 2) as freight,
+        -- Determine shipping status
+        CASE 
+            WHEN shippedDate IS NULL AND requiredDate < CURDATE() THEN 'Overdue'
+            WHEN shippedDate IS NULL THEN 'Pending'
+            ELSE 'Shipped'
+        END as shipping_status,
+        -- Calculate shipping days (only for shipped orders)
+        CASE 
+            WHEN shippedDate IS NOT NULL THEN DATEDIFF(try_cast(shippedDate as DATE), try_cast(orderDate as DATE))
+            ELSE NULL
+        END as days_to_ship,
+        -- Categorize freight costs
+        CASE 
+            WHEN ROUND(freight, 2) < 20 THEN 'Low'
+            WHEN ROUND(freight, 2) < 60 THEN 'Medium'
+            ELSE 'High'
+        END as freight_category,
+        md_updated_datetime
+      FROM demo_ingest.orders
+      WHERE orderDate IS NOT NULL
+  target:
+    table_name: demo_clean.orders
+    writer_type: batch
+    writer_mode: append

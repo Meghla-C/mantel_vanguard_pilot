@@ -1,0 +1,30 @@
+sales_summary:
+  enabled: true
+  source:
+    reader_type: table_batch
+    load_type: full
+    select_query: >
+      SELECT 
+        order_date as summary_date,
+        COUNT(*) as total_orders,
+        SUM(CASE WHEN shipping_status = 'Shipped' THEN 1 ELSE 0 END) as orders_shipped,
+        SUM(CASE WHEN shipping_status IN ('Pending', 'Overdue') THEN 1 ELSE 0 END) as orders_pending,
+        ROUND(SUM(freight), 2) as total_freight,
+        ROUND(AVG(freight), 2) as avg_freight,
+        ROUND(AVG(days_to_ship), 1) as avg_shipping_days,
+        -- Get top customer for this date
+        first(company_name) as top_customer,
+        -- Get top country for this date
+        first(customer_country) as top_country
+      FROM demo_enrich.orders
+      WHERE order_date >= (SELECT ADD_MONTHS(COALESCE(MAX(TRUNC(summary_date, 'MONTH')), DATE('1900-01-01')), 1) FROM demo_agg.sales_summary)
+      GROUP BY order_date
+    keep_source_metadata: false
+    generated_metadata_columns_to_remove: ["md_sales_summary_pk"] # Add this line to remove unnecessary metadata columns
+  target:
+    table_name: demo_agg.sales_summary
+    writer_type: "merge_batch"
+    join_columns: ["summary_date"]
+    exclude_columns: ["md_validation_status", "md_metadata", "md_source_name", "md_created_datetime", "md_updated_datetime", "md_deleted_datetime"]
+
+

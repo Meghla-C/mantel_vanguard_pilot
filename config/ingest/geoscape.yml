@@ -1,0 +1,15 @@
+geoscape_roads:
+  enabled: true
+  source:
+    reader_type: file_stream
+    format: json
+    volume_path: 'demo_land/map/Roads*roads.geojson'
+    explode_column: 'features'
+    read_options: {"cloudFiles.includeExistingFiles": True,
+                  "cloudFiles.schemaEvolutionMode": "none",
+                  "cloudFiles.allowOverwrites": True,
+                  "header": False}
+  target:
+    table_name: demo_ingest.geoscape_roads
+    writer_type: append_stream
+    trigger_type_value: {"availableNow": True}

@@ -1,0 +1,63 @@
+resources:
+  jobs:
+    rules_engine_critical_job:
+      name: rules_engine_critical_job
+      email_notifications:
+        on_failure:
+          - ${var.failure_email_list}
+
+      tasks:
+        - task_key: sample_critical_rule_1
+          notebook_task:
+            notebook_path: ../src/pipelines/rules_engine_pipeline.py
+            base_parameters: {"rule_name": "sample_null_check_critical_rule_1",
+                              "yaml_config_file": "./rules_engine/sample_rule_config.yml",
+                              "requirements_file": "src/etl_framework_requirements.txt",
+                              "start_timestamp": "",
+                              "end_timestamp": ""}
+          email_notifications:
+            on_failure:
+              - ${var.failure_email_list}
+
+      
+        - task_key: update_source_tables
+          depends_on:
+            - task_key: sample_critical_rule_1
+          notebook_task:
+            notebook_path: ../src/pipelines/rules_engine_results_update.py
+            base_parameters: {"results_table_name": "meta.validation_results",
+                              "requirements_file": "src/etl_framework_requirements.txt"}
+          email_notifications:
+            on_failure:
+              - ${var.failure_email_list}
+
+
+    rules_engine_anomaly_job:
+      name: rules_engine_anomaly_job
+      email_notifications:
+        on_failure:
+          - ${var.failure_email_list}
+
+      tasks:
+        - task_key: sample_anomaly_rule_1
+          notebook_task:
+            notebook_path: ../src/pipelines/rules_engine_pipeline.py
+            base_parameters: {"rule_name": "sample_duplicate_check_anomaly_rule_1",
+                              "yaml_config_file": "./rules_engine/sample_rule_config.yml",
+                              "requirements_file": "src/etl_framework_requirements.txt",
+                              "start_timestamp": "",
+                              "end_timestamp": ""}
+          email_notifications:
+            on_failure:
+              - ${var.failure_email_list}
+      
+        - task_key: update_source_tables
+          depends_on:
+            - task_key: sample_anomaly_rule_1
+          notebook_task:
+            notebook_path: ../src/pipelines/rules_engine_results_update.py
+            base_parameters: {"results_table_name": "meta.validation_results",
+                              "requirements_file": "src/etl_framework_requirements.txt"}
+          email_notifications:
+            on_failure:
+              - ${var.failure_email_list}

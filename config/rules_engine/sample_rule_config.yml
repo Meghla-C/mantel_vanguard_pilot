@@ -1,0 +1,61 @@
+sample_null_check_critical_rule_1:
+  validator: sql
+  source_table_name: table_schema.table_to_validate # table to validate
+  results_table_name: meta.rule_validation_results # table where to write results to
+  unique_key: table_to_validate_id # unique key of the table you are validating
+  validation_status: CRITICAL # CRITICAL or ANOMALY
+  subset_method: watermark_results_table # subset using watermark results table. will use md_created_datetime as watermark column
+  query_params: # parameters that will be injected into the select_query
+    parameter1: value1
+  select_query: >
+    SELECT
+      id,
+    FROM subset_df -- you must select data from subset_df as rule engine will subset data for you and return you the subset_df 
+    WHERE  (col1 IS NULL 
+            OR col1 = 0
+            OR col2 = {parameter1})
+
+
+sample_duplicate_check_anomaly_rule_1:
+  validator: sql
+  source_table_name: table_schema.table_to_validate # table to validate
+  results_table_name: meta.rule_validation_results # table where to write results to
+  unique_key: table_to_validate_id # unique key of the table you are validating
+  validation_status: ANOMALY
+  subset_method: custom_columns_source_data # subset data based on custom colum specified in subset_column_list
+  subset_column_list: ["column_name"] # list of columns to subset data on  
+  query_params:
+    go_back_months: 6
+  select_query: >
+    WITH cte AS (
+    SELECT 
+        id, 
+        col2,
+        col3,
+        COUNT(*) AS count 
+    FROM subset_df 
+    GROUP BY col2, col3
+    HAVING COUNT(*) > 1
+    )
+    SELECT 
+        id
+    FROM subset_df
+    INNER JOIN cte ON subset_df.id = cte.id 
+
+sample_null_check_custom_rule_1:
+  validator: sql
+  source_table_name: table_schema.table_to_validate # table to validate
+  results_table_name: meta.rule_validation_results # table where to write results to
+  unique_key: table_to_validate_id # unique key of the table you are validating
+  validation_status_flag: True # flag to indicate if validation status is present in the select query
+  subset_method: watermark_results_table # subset using watermark results table. will use md_created_datetime as watermark column
+  query_params: # parameters that will be injected into the select_query
+    parameter1: value1
+  select_query: >
+    SELECT
+      id,
+      'CUSTOM' as md_validation_status
+    FROM subset_df 
+    WHERE  (col1 IS NULL 
+            OR col1 = 0
+            OR col2 = {parameter1})

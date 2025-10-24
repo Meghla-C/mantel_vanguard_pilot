@@ -1,0 +1,65 @@
+# Sample ETL Configuration
+# This file demonstrates how to configure different reader and writer combinations
+# Each entity shows a complete ETL pipeline from source to target
+
+# Example 1: File Stream Reader to Batch Writer
+# Use this pattern for reading files (CSV, JSON, Parquet) and writing to tables in batch mode
+file_to_table:
+  source:
+    # Source configuration - defines how to read data
+    reader_type: "file_stream"          # Reads files as streaming data
+    path: "/mnt/data/input/sample_file.csv"  # File path to read from
+    format: "csv"                       # File format (csv, json, parquet, etc.)
+    read_options:                       # Additional read options
+      header: true                      # CSV has header row
+      inferSchema: true                 # Auto-detect column types
+    source_watermark_column: "created_date"    # Column used for watermarking
+    enable_file_watermarking: true      # Track processed files
+    meta_table_name: "meta.sample_watermarks" # Table to store watermark info
+  
+  target:
+    # Target configuration - defines how to write data
+    writer_type: "batch"                # Write data in batch mode
+    table_name: "sample_schema.sample_table"  # Target table (schema.table format)
+    writer_mode: "overwrite"            # Overwrite existing data
+    write_options:                      # Additional write options
+      mergeSchema: true                 # Merge schemas if they differ
+
+# Example 2: API Reader to Append Stream Writer
+# Use this pattern for reading from external APIs and writing to streaming tables
+api_to_stream:
+  source:
+    # Source configuration - defines how to read from API
+    reader_type: "api"                  # Reads data from HTTP API endpoints
+    host_name_secret_key: "sample_api_host"      # API hostname (stored as secret)
+    username_secret_key: "sample_api_username"   # API username (stored as secret)
+    password_secret_key: "sample_api_password"   # API password (stored as secret)
+    read_options:                       # Additional read options
+      timeout: 30000                    # API request timeout in milliseconds
+    source_watermark_column: "timestamp" # Column used for timestamp tracking
+  
+  target:
+    # Target configuration - defines how to write streaming data
+    writer_type: "append_stream"        # Append data to streaming table
+    table_name: "sample_schema.sample_streaming_table"  # Target streaming table
+    trigger_type_value:                 # Streaming trigger configuration
+      processingTime: "5 minutes"       # Process data every 5 minutes
+
+# Example 3: Table Batch Reader to Merge Batch Writer
+# Use this pattern for reading from existing tables and performing merge operations
+table_to_merge:
+  source:
+    # Source configuration - defines how to read from database table
+    reader_type: "table_batch"          # Reads data from existing table in batch
+    table_name: "sample_schema.sample_source_table"     # Source table to read from
+    select_query: "SELECT * FROM sample_schema.sample_source_table WHERE updated_date >= '2024-01-01'"  # Custom SQL query
+    source_watermark_column: "updated_date"      # Column used for timestamp tracking
+  
+  target:
+    # Target configuration - defines how to perform merge operations
+    writer_type: "merge_batch"          # Merge data with existing table data
+    table_name: "sample_schema.sample_target_table"      # Target table for merge
+    writer_mode: "overwrite"            # Overwrite existing data
+    join_columns: ["sample_id"]         # Columns to join on for merge
+    change_status_column: "status"      # Column to track change status
+    updated_datetime_column: "last_updated"     # Column to track last update time

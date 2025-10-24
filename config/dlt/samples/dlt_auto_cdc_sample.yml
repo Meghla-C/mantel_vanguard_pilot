@@ -1,0 +1,42 @@
+# Sample DLT Auto CDC Configuration
+# This configuration demonstrates how to use the DLT create_auto_cdc_flow writer
+# for change data capture using Databricks declarative pipelines
+
+dlt_auto_cdc_example:
+  source:
+    # Source configuration - reading from a table stream for CDC
+    reader_type: "table_stream"
+    table_name: "source_schema.customer_changes"
+    source_watermark_column: "updated_timestamp"
+    
+  target:
+    # Target configuration - using DLT auto CDC writer
+    writer_type: "dlt_auto_cdc"
+    table_name: "target_schema.customers"
+    
+    # DLT create_auto_cdc_flow specific parameters
+    keys: ["customer_id"]
+    sequence_by: "updated_timestamp"
+    ignore_null_updates: false
+    apply_as_deletes: "operation = 'DELETE'"
+    apply_as_truncates: "operation = 'TRUNCATE'"
+    column_list: ["customer_id", "name", "email", "phone", "updated_timestamp"]
+    stored_as_scd_type: "2"
+    track_history_column_list: ["name", "email", "phone"]
+    flow_name: "customer_cdc_flow"
+    once: false
+    comment: "Customer table with SCD Type 2 change data capture"
+    
+    # Data quality expectations
+    expectations:
+      - name: "valid_customer_id"
+        constraint: "customer_id IS NOT NULL"
+        action: "fail"
+      - name: "valid_email_format"
+        constraint: "email RLIKE '^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'"
+        action: "drop"
+    
+    # Table properties for optimization
+    table_properties:
+      "delta.autoOptimize.optimizeWrite": "true"
+      "delta.autoOptimize.autoCompact": "true"

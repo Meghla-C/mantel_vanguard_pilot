@@ -1,0 +1,44 @@
+# This is a Databricks asset bundle definition for dmp_core.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: etl_core
+
+include:
+  - resources/*.yml
+
+sync:
+  exclude:
+    - .devcontainer
+
+targets:
+  # The 'developer' target, used for development purposes.
+  # Whenever a developer deploys using 'developer', they get their own copy.
+  developer:
+    # We use 'mode: development' to make sure everything deployed to this target gets a prefix
+    # like '[dev my_user_name]'. Setting this mode also disables any schedules and
+    # automatic triggers for jobs and enables the 'development' mode for Delta Live Tables pipelines.
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-44d88950-fd99.cloud.databricks.com/
+    variables:
+      failure_email_list: "${workspace.current_user.userName}"
+      job_cluster_policy_id: ""
+    presets:
+      trigger_pause_status: PAUSED
+
+  dev:
+    mode: production
+    workspace:
+      host: https://dbc-44d88950-fd99.cloud.databricks.com/
+      root_path: /etl-core/${bundle.name}
+    run_as:
+      service_principal_name: "e6ee55da-62d0-4216-b94c-dae8665ca6cb"
+    variables:
+      failure_email_list: ""
+      job_cluster_policy_id: ""
+    presets:
+      trigger_pause_status: UNPAUSED
+    permissions:
+      - group_name: users
+        level: CAN_MANAGE

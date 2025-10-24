@@ -1,0 +1,39 @@
+customers:
+  enabled: true
+  source:
+    reader_type: file_stream
+    format: csv
+    volume_path: 'demo_land/sales/*customers.csv'
+    read_options: {"header": true,
+                  "inferSchema": true}
+  target:
+    table_name: demo_ingest.customers
+    writer_type: append_stream
+    trigger_type_value: {"availableNow": True}
+
+
+products:
+  enabled: true
+  source:
+    reader_type: file_stream
+    format: csv
+    volume_path: 'demo_land/sales/*products.csv'
+    read_options: {"header": true,
+                  "inferSchema": true}
+  target:
+    table_name: demo_ingest.products
+    writer_type: append_stream
+    trigger_type_value: {"availableNow": True}
+
+orders:
+  enabled: true
+  source:
+    reader_type: file_stream
+    format: csv
+    volume_path: 'demo_land/sales/*orders.csv'
+    read_options: {"header": true,
+                  "inferSchema": true}
+  target:
+    table_name: demo_ingest.orders
+    writer_type: append_stream
+    trigger_type_value: {"availableNow": True}

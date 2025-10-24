@@ -1,0 +1,42 @@
+# Sample DLT Append Flow Configuration
+# This configuration demonstrates how to use the DLT append_flow writer
+# to append data to a target table using Databricks declarative pipelines
+
+
+dlt_append_flow_example:
+  source:
+    # Source configuration - reading from a file stream
+    reader_type: "file_stream"
+    path: "/mnt/data/input/sales_data.csv"
+    format: "csv"
+    read_options:
+      header: true
+      inferSchema: true
+    source_watermark_column: "created_date"
+    
+  target:
+    # Target configuration - using DLT append_flow writer
+    writer_type: "dlt_append_flow"
+    table_name: "sales_schema.sales_transactions"
+    
+    # DLT append_flow specific parameters
+    flow_name: "sales_append_flow"
+    once: false
+    spark_conf:
+      "spark.sql.adaptive.enabled": "true"
+      "spark.sql.adaptive.coalescePartitions.enabled": "true"
+    comment: "Sales transactions table updated via DLT append flow"
+    
+    # Data quality expectations
+    expectations:
+      - name: "valid_amount"
+        constraint: "amount > 0"
+        action: "fail"
+      - name: "valid_date"
+        constraint: "created_date IS NOT NULL"
+        action: "drop"
+    
+    # Column exclusions
+    exclude_columns:
+      - "temp_column"
+      - "debug_info"

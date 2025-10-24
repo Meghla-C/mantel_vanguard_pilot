@@ -1,0 +1,17 @@
+# resources:
+#   pipelines:
+#     dlt_pipeline_sample:
+#       name: dlt_pipeline_sample
+#       catalog: deve # ${bundle.target}
+#       schema: sample
+#       serverless: true
+#       libraries:
+#         - notebook:
+#             path: ../src/pipelines/dlt_pipeline_orchestrator.py
+
+#       configuration:
+#         # bundle.sourcePath: ${workspace.file_path}/src
+#         yaml_config_file: "dlt/dlt_pipeline_sample.yml"
+#         requirements_file: "src/etl_framework_requirements.txt"
+#         logging_mode: DEBUG
+#         logs_directory: "meta/logs"

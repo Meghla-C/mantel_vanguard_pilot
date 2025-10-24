@@ -1,0 +1,96 @@
+# Sample DLT View Configuration
+# This configuration demonstrates how to use the DLT view writer
+# to create views in Databricks declarative pipelines for intermediate data transformations
+
+
+dlt_view_example:
+  source:
+    # Source configuration - reading from a table stream
+    reader_type: "table_stream"
+    table_name: "raw_schema.customer_data"
+    source_watermark_column: "updated_timestamp"
+    
+  target:
+    # Target configuration - using DLT view writer
+    writer_type: "dlt_view"
+    view_name: "analytics_schema.customer_summary_view"
+    
+    # View metadata
+    comment: "Customer summary view for analytics and reporting"
+    
+    # View properties
+    table_properties:
+      "quality": "silver"
+      "purpose": "analytics"
+      "owner": "data_team"
+      "refresh_frequency": "daily"
+    
+    # Data quality expectations
+    expectations:
+      - name: "valid_customer_id"
+        constraint: "customer_id IS NOT NULL"
+        action: "fail"
+      - name: "valid_customer_count"
+        constraint: "customer_count > 0"
+        action: "fail"
+      - name: "valid_email_format"
+        constraint: "email RLIKE '^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$'"
+        action: "drop"
+    
+    # Column exclusions (if any sensitive data needs to be excluded)
+    exclude_columns:
+      - "ssn"
+      - "credit_card_number"
+
+  transform:
+    # Transform configuration - using default transformer
+    transform_type: "default"
+
+
+# Alternative example with minimal configuration
+dlt_view_minimal:
+  source:
+    reader_type: "table_batch"
+    table_name: "raw_schema.product_data"
+    
+  target:
+    writer_type: "dlt_view"
+    view_name: "analytics_schema.product_view"
+    comment: "Simple product view"
+
+
+# Example with complex data quality rules
+dlt_view_complex_quality:
+  source:
+    reader_type: "file_stream"
+    path: "/mnt/data/input/transactions.json"
+    format: "json"
+    read_options:
+      multiLine: true
+    
+  target:
+    writer_type: "dlt_view"
+    view_name: "gold_schema.validated_transactions_view"
+    comment: "Validated transactions view with comprehensive quality checks"
+    
+    table_properties:
+      "quality": "gold"
+      "data_classification": "financial"
+      "retention_policy": "7_years"
+    
+    expectations:
+      - name: "valid_transaction_id"
+        constraint: "transaction_id IS NOT NULL AND length(transaction_id) = 36"
+        action: "fail"
+      - name: "positive_amount"
+        constraint: "amount > 0"
+        action: "fail"
+      - name: "valid_currency"
+        constraint: "currency IN ('USD', 'EUR', 'GBP', 'JPY')"
+        action: "drop"
+      - name: "recent_transaction"
+        constraint: "transaction_date >= current_date() - interval 30 days"
+        action: "drop"
+      - name: "valid_merchant"
+        constraint: "merchant_name IS NOT NULL AND length(merchant_name) > 0"
+        action: "drop"

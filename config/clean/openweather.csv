@@ -1,0 +1,12 @@
+source_df,source_column,transformation,target_entity,target_column,target_datatype,operation,comments
+,value:name,,openweather_currentweather,name,string,,"City name"
+,value:lat,,openweather_currentweather,latitude,double,,"Latitude of the city"
+,value:lon,,openweather_currentweather,longitude,double,,"Longitude of the city"
+,value:country,,openweather_currentweather,country,string,,"Country code"
+,value:state,,openweather_currentweather,state,string,,"State name"
+,md_openweather_currentweather_pk,,openweather_currentweather,md_openweather_currentweather_pk,string,PK,"Primary key for openweather data"
+,md_metadata,,openweather_currentweather,md_metadata,string,,"Metadata of API response"
+,md_created_datetime,current_timestamp(),openweather_currentweather,md_created_datetime,timestamp,,"Record creation timestamp"
+,md_updated_datetime,current_timestamp(),openweather_currentweather,md_updated_datetime,timestamp,,"Record update timestamp"
+,md_deleted_datetime,,openweather_currentweather,md_deleted_datetime,timestamp,,"Record deletion timestamp"
+,md_change_status,,openweather_currentweather,md_change_status,string,,"Change status of the record"

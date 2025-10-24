@@ -1,0 +1,106 @@
+# This example is based on the following Databricks tutorial
+# https://docs.databricks.com/aws/en/dlt/tutorial-pipelines?language=Python
+
+customers_cdc_bronze:
+  source:
+    reader_type: "file_stream"
+    volume_path: "/Volumes/jamie_test/dbdemos_dlt_cdc/raw_data/customers"
+    format: "json"
+    read_options: {cloudFiles.inferColumnTypes: true}
+  target:
+    writer_type: dlt_table # dlt_append_flow # 
+    table_name: demo_ingest.customers_cdc_bronze
+    once: false
+    comment: "New customer data incrementally ingested from cloud object storage landing zone"
+    # Data quality expectations using unified format
+    expectations:
+      - name: "valid_email"
+        constraint: "email IS NOT NULL AND email != ''"
+        action: "fail"
+      - name: "valid_id"
+        constraint: "id IS NOT NULL"
+        action: "fail"
+
+customers_cdc_clean:
+  source:
+    reader_type: table_stream
+    table_name: demo_ingest.customers_cdc_bronze
+    select_columns: ["address", "email", "id", "firstname", "lastname", "operation", "operation_date", "_rescued_data"]
+  target:
+    writer_type: dlt_append_flow # dlt_table # 
+    table_name: demo_clean.customers_cdc_clean
+    # Data quality expectations using unified format
+    expectations:
+      - name: "no_rescued_data"
+        constraint: "_rescued_data IS NULL"
+        action: "drop"
+      - name: "valid_id"
+        constraint: "id IS NOT NULL"
+        action: "drop"
+      - name: "valid_operation"
+        constraint: "operation IN ('APPEND', 'DELETE', 'UPDATE')"
+        action: "drop"
+
+customers_scd1_clean:
+  source:
+    # Source configuration - reading from a table stream for CDC
+    reader_type: "table_stream"
+    table_name: demo_clean.customers_cdc_clean   
+  target:
+    # Target configuration - using DLT auto CDC writer
+    writer_type: "dlt_auto_cdc"
+    table_name: demo_clean.customers
+    # DLT create_auto_cdc_flow specific parameters
+    keys: ["id"]
+    sequence_by: "operation_date"
+    ignore_null_updates: false
+    apply_as_deletes: "operation = 'DELETE'"
+    apply_as_truncates: "operation = 'TRUNCATE'"
+    except_column_list: ["operation", "operation_date", "_rescued_data"]
+    stored_as_scd_type: "1"
+    comment: "Clean, materialized customers"
+    
+    # Table properties for optimization
+    table_properties:
+      "delta.autoOptimize.optimizeWrite": "true"
+      "delta.autoOptimize.autoCompact": "true"
+
+customers_scd2_clean:
+  source:
+    # Source configuration - reading from a table stream for CDC
+    reader_type: "table_stream"
+    table_name: demo_clean.customers_cdc_clean
+  target:
+    # Target configuration - using DLT auto CDC writer
+    writer_type: "dlt_auto_cdc"
+    table_name: demo_clean.customers_history
+    # DLT create_auto_cdc_flow specific parameters
+    keys: ["id"]
+    sequence_by: "operation_date"
+    ignore_null_updates: false
+    apply_as_deletes: "operation = 'DELETE'"
+    except_column_list: ["operation", "operation_date", "_rescued_data"]
+    stored_as_scd_type: "2"
+    comment: "Slowly Changing Dimension Type 2 for customers"
+    
+    # Table properties for optimization
+    table_properties:
+      "delta.autoOptimize.optimizeWrite": "true"
+      "delta.autoOptimize.autoCompact": "true"
+
+customers_history_agg_clean:
+  source:
+    reader_type: "table_batch"
+    load_type: full
+    select_query: >
+      SELECT 
+        count(address) AS address_count,
+        count(email) AS email_count,
+        count(firstname) AS firstname_count,
+        count(lastname) AS lastname_count
+      FROM demo_clean.customers_history
+      GROUP BY id
+  target:
+    writer_type: dlt_view 
+    view_name: customers_history_agg
+    comment: "Aggregated customer history"
