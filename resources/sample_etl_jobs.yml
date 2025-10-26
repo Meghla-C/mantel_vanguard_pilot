@@ -130,46 +130,20 @@ resources:
                               "yaml_config_file": "clean/openweather.yml",
                               "requirements_file": "src/etl_framework_requirements.txt"}    
 
-    computer_share:
-      name: computershare_job
+    computershare_holdings:
+      name: computershare_holdings_job
       email_notifications:
         on_failure:
           - ${var.failure_email_list}
       trigger:
           pause_status: PAUSED
           file_arrival:
-              url: /Volumes/development/vanguard_landing/computershare-dummy-data/
+              url: /Volumes/development/vanguard_landing/computershare-holdings/
       tasks:
-        - task_key: ingest_computershare
+        - task_key: ingest_computershare_holdings
           notebook_task:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
-            base_parameters: {"entity": "computer_share",
-                              "yaml_config_file": "ingest/computer_share.yml",
+            base_parameters: {"entity": "computershare_holdings",
+                              "yaml_config_file": "ingest/computershare_holdings.yml",
                               "requirements_file": "src/etl_framework_requirements.txt"}
-        - task_key: computershare_investor
-          notebook_task:
-            notebook_path: ../src/pipelines/data_etl_pipeline.py
-            base_parameters: {"entity": "investor",
-                              "yaml_config_file": "enrich/computer_share.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
-          depends_on:
-            - task_key: ingest_computershare
-        - task_key: computershare_security
-          notebook_task:
-            notebook_path: ../src/pipelines/data_etl_pipeline.py
-            base_parameters: {"entity": "security",
-                              "yaml_config_file": "enrich/computer_share.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
-          depends_on:
-            - task_key: ingest_computershare
-
-        - task_key: registry_security_day_account
-          notebook_task:
-            notebook_path: ../src/pipelines/data_etl_pipeline.py
-            base_parameters: {"entity": "registry_security_day_account",
-                              "yaml_config_file": "agg/computer_share.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
-          depends_on:
-            - task_key: computershare_investor
-            - task_key: computershare_security
-    
+      
