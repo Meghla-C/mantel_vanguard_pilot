@@ -1,14 +1,14 @@
-computer_share:
+computershare_holdings:
   enabled: true
   source:
     reader_type: file_stream
     format: parquet
-    volume_path: 'vanguard_landing/computershare-dummy-data/*.parquet'
+    volume_path: 'vanguard_landing/computershare-holdings/*.parquet'
     read_options: {"cloudFiles.includeExistingFiles": True,
-                  "cloudFiles.schemaEvolutionMode": "none",
+                  "cloudFiles.schemaEvolutionMode": "addNewColumns",
                   "cloudFiles.allowOverwrites": True,
                   "header": False}
   target:
-    table_name: vanguard_bronze.computershare
+    table_name: vanguard_bronze.computershare_holdings
     writer_type: append_stream
     trigger_type_value: {"availableNow": True}
