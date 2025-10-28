@@ -1,2 +1,2 @@
 pyyaml
-pydantic>=2.0
+pydantic>=2.5.0
