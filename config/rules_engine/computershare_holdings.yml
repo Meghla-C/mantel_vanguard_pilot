@@ -1,0 +1,12 @@
+null_check_holder_id:
+  validator: sql
+  source_table_name: vanguard_bronze.computershare_holdings # table to validate
+  results_table_name: meta.clean_validation_results # table where to write results to
+  unique_key: md_computershare_holdings_pk # unique key of the table you are validating
+  validation_status: CRITICAL # CRITICAL or ANOMALY
+  subset_method: watermark_results_table # subset using watermark results table. will use md_created_datetime as watermark column
+  select_query: >
+    SELECT
+      md_computershare_holdings_pk
+    FROM subset_df -- you must select data from subset_df as rule engine will subset data for you and return you the subset_df 
+    WHERE holder_id IS NULL

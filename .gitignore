@@ -1,2 +1,11 @@
-
-.databricks
+**.cache
+**.dotnet
+**.ssh
+**.vscode-server
+**.gitconfig
+**.local
+**.databrickscfg
+.bash_history
+**.venv/
+.databrickscfg.bak
+*.python_history

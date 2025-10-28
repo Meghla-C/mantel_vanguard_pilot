@@ -220,7 +220,7 @@ class AbstractRuleValidator(ABC):
         }
 
         data_writer = DataWriterFactory.get_datawriter(
-            EntityConfig(**results_table_config), self.spark, self.dbutils
+            EntityConfig(**results_table_config), self.spark, self.dbutils, self.logger
         )
         data_writer.write_to_target_table(test_metadata_df)
         return test_metadata_df
