@@ -15,14 +15,14 @@ def parallel_run(function, items, apply_flat_map=False):
         return results
 
 
-def get_writer_and_write(entity_config, source_df, spark, dbutils):
+def get_writer_and_write(entity_config, source_df, spark, dbutils, logger):
     """
     Identify the writer type and write to delta table
     """
     # Initialize data write from DataWriterFactory
-    data_writer = DataWriterFactory.get_datawriter(entity_config, spark, dbutils)
+    data_writer = DataWriterFactory.get_datawriter(entity_config, spark, dbutils, logger)
     # Write to delta table
-    data_writer.write_to_delta_table(source_df)
+    data_writer.write_to_target_table(source_df)
 
 
 def get_writer_and_write_wrapper(args):

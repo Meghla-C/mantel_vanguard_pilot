@@ -12,7 +12,7 @@ resources:
             notebook_path: ../src/pipelines/rules_engine_pipeline.py
             base_parameters: {"rule_name": "null_check_holder_id",
                               "yaml_config_file": "./rules_engine/computershare_holdings.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt",
+                              "requirements_file": "../etl_framework_requirements.txt",
                               "start_timestamp": "",
                               "end_timestamp": ""}
         - task_key: update_source_tables
@@ -21,7 +21,7 @@ resources:
           notebook_task:
             notebook_path: ../src/pipelines/rules_engine_results_update.py
             base_parameters: {"results_table_name": "meta.clean_validation_results",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
           email_notifications:
             on_failure:
               - ${var.failure_email_list}

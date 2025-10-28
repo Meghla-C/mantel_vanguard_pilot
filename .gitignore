@@ -9,3 +9,4 @@
 **.venv/
 .databrickscfg.bak
 *.python_history
+**.vscode/
