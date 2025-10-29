@@ -1,13 +1,29 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Rules Engine Pipeline
-# MAGIC ## Set Up Paths
 
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Install Libraries
+# COMMAND ----------
+
+dbutils.widgets.text("requirements_file", "")  # noqa: F821
+requirements_file = dbutils.widgets.get("requirements_file")  # noqa: F821
+
+# COMMAND ----------
+
+import subprocess
+subprocess.run(["pip", "install", "-r", requirements_file])
+dbutils.library.restartPython()
+
+# COMMAND ----------
+# MAGIC %md
+# MAGIC ## Set Up Paths
 # COMMAND ----------
 
 import os
 import sys
-import subprocess
 
 # COMMAND ----------
 
@@ -29,7 +45,6 @@ config_path = os.path.join(base_path, "config")
 # Set widgets for entity and YAML config file
 dbutils.widgets.text("rule_name", "")  # noqa: F821
 dbutils.widgets.text("yaml_config_file", "")  # noqa: F821
-dbutils.widgets.text("requirements_file", "")  # noqa: F821
 dbutils.widgets.text("logging_mode", "INFO")  # noqa: F821
 dbutils.widgets.text("logs_directory", "")  # noqa: F821
 # start timestamp allows to set watermark from which data will be processed (sets min updated_datetime that will be tested)
@@ -43,9 +58,6 @@ rule_name = dbutils.widgets.get("rule_name")  # noqa: F821
 yaml_config_file = os.path.join(
     config_path, dbutils.widgets.get("yaml_config_file")  # noqa: F821
 )
-requirements_file = os.path.join(
-    base_path, dbutils.widgets.get("requirements_file")  # noqa: F821
-)
 logging_mode = dbutils.widgets.get("logging_mode")  # noqa: F821
 logs_directory = dbutils.widgets.get("logs_directory")  # noqa: F821
 start_timestamp = dbutils.widgets.get("start_timestamp")  # noqa: F821
@@ -56,15 +68,6 @@ if start_timestamp == "":
 if end_timestamp == "":
     end_timestamp = None
 
-# COMMAND ----------
-
-# MAGIC %md 
-# MAGIC ## Install Libraries
-
-# COMMAND ----------
-
-# Install pip modules
-subprocess.run(["pip", "install", "-r", requirements_file])
 
 # COMMAND ----------
 

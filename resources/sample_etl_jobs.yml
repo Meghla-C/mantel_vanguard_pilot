@@ -11,7 +11,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "geoscape_roads",
                               "yaml_config_file": "ingest/geoscape.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt",
+                              "requirements_file": "../etl_framework_requirements.txt",
                               "logs_directory": "meta/etl_framework_logs"}
 
         - task_key: clean_geoscape_roads
@@ -21,7 +21,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "geoscape_roads",
                               "yaml_config_file": "clean/geoscape.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}    
+                              "requirements_file": "../etl_framework_requirements.txt"}    
 
     northwind_job:
       name: northwind_job
@@ -35,21 +35,21 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "customers",
                               "yaml_config_file": "ingest/northwind.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: ingest_products
           notebook_task:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "products",
                               "yaml_config_file": "ingest/northwind.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: ingest_orders
           notebook_task:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "orders",
                               "yaml_config_file": "ingest/northwind.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: clean_customers
           depends_on:
@@ -58,7 +58,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "customers",
                               "yaml_config_file": "clean/northwind.yml", 
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: clean_products
           depends_on:
@@ -67,7 +67,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "products",
                               "yaml_config_file": "clean/northwind.yml", 
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: clean_orders
           depends_on:
@@ -76,7 +76,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "orders",
                               "yaml_config_file": "clean/northwind.yml", 
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: clean_orders
           depends_on:
@@ -85,7 +85,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "orders",
                               "yaml_config_file": "clean/northwind.yml", 
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: enrich_orders
           depends_on:
@@ -95,7 +95,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "orders",
                               "yaml_config_file": "enrich/orders.yml", 
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
 
         - task_key: agg_sales_summary
           depends_on:
@@ -104,7 +104,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "sales_summary",
                               "yaml_config_file": "agg/sales_summary.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}       
+                              "requirements_file": "../etl_framework_requirements.txt"}       
     
 
     openweather_job:
@@ -118,7 +118,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "openweather_currentweather",
                               "yaml_config_file": "ingest/openweather.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
         
 
         - task_key: clean_openweather
@@ -128,7 +128,7 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "openweather_currentweather",
                               "yaml_config_file": "clean/openweather.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}    
+                              "requirements_file": "../etl_framework_requirements.txt"}    
 
     computershare_holdings:
       name: computershare_holdings_job
@@ -145,5 +145,5 @@ resources:
             notebook_path: ../src/pipelines/data_etl_pipeline.py
             base_parameters: {"entity": "computershare_holdings",
                               "yaml_config_file": "ingest/computershare_holdings.yml",
-                              "requirements_file": "src/etl_framework_requirements.txt"}
+                              "requirements_file": "../etl_framework_requirements.txt"}
       

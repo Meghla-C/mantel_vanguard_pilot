@@ -1,13 +1,28 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Rules Engine Results Update Pipeline
-# MAGIC ## Set Up Paths
+# COMMAND ----------
 
+# MAGIC %md
+# MAGIC ## Install Libraries
+# COMMAND ----------
+
+dbutils.widgets.text("requirements_file", "")  # noqa: F821
+requirements_file = dbutils.widgets.get("requirements_file")  # noqa: F821
+
+# COMMAND ----------
+
+import subprocess
+subprocess.run(["pip", "install", "-r", requirements_file])
+dbutils.library.restartPython()
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Set Up Paths
 # COMMAND ----------
 
 import os
 import sys
-import subprocess
 
 # COMMAND ----------
 
@@ -30,7 +45,6 @@ config_path = os.path.join(base_path, "config")
 dbutils.widgets.text(  # noqa: F821
     "results_table_name", "meta.clean_validation_results"
 )
-dbutils.widgets.text("requirements_file", "")  # noqa: F821
 dbutils.widgets.text("logging_mode", "INFO")  # noqa: F821
 dbutils.widgets.text("logs_directory", "")  # noqa: F821
 
@@ -38,21 +52,8 @@ dbutils.widgets.text("logs_directory", "")  # noqa: F821
 
 # Retrieve widget values
 results_table_name = dbutils.widgets.get("results_table_name")  # noqa: F821
-requirements_file = os.path.join(
-    base_path, dbutils.widgets.get("requirements_file")  # noqa: F821
-)
 logging_mode = dbutils.widgets.get("logging_mode")  # noqa: F821
 logs_directory = dbutils.widgets.get("logs_directory")  # noqa: F821
-
-# COMMAND ----------
-
-# MAGIC %md 
-# MAGIC ## Install Libraries
-
-# COMMAND ----------
-
-# Install pip modules
-subprocess.run(["pip", "install", "-r", requirements_file])
 
 # COMMAND ----------
 
@@ -151,6 +152,7 @@ items = [
         result_dfs[target_entity_name],
         spark,  # noqa: F821
         dbutils,  # noqa: F821
+        logger,
     )
     for target_entity_name in result_dfs.keys()
 ]
