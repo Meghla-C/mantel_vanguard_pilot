@@ -1,0 +1,59 @@
+name: Databricks Bundle CI/CD 
+
+on:
+  push:
+    branches: [ "dev", "test", "prod" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # This ties the job to a GitHub Environment named dev/test/prod
+    # and must match the `environment:` part of your federation policy subject.
+    environment: ${{ github.ref_name }}
+
+    permissions:
+      id-token: write      # needed for OIDC
+      contents: read
+
+    env:
+      # DAB target name (we made targets dev/test/prod in databricks.yml)
+      TARGET: ${{ github.ref_name }}
+
+      # Tell Databricks CLI to use GitHub OIDC
+      DATABRICKS_AUTH_TYPE: github-oidc
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set Databricks workspace + SP per branch
+        run: |
+          if [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "DATABRICKS_HOST=https://<your-dev-workspace>.cloud.databricks.com" >> $GITHUB_ENV
+            echo "DATABRICKS_CLIENT_ID=<DEV_SERVICE_PRINCIPAL_APP_ID>" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "test" ]; then
+            echo "DATABRICKS_HOST=https://<your-test-workspace>.cloud.databricks.com" >> $GITHUB_ENV
+            echo "DATABRICKS_CLIENT_ID=<TEST_SERVICE_PRINCIPAL_APP_ID>" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" = "prod" ]; then
+            echo "DATABRICKS_HOST=https://<your-prod-workspace>.cloud.databricks.com" >> $GITHUB_ENV
+            echo "DATABRICKS_CLIENT_ID=<PROD_SERVICE_PRINCIPAL_APP_ID>" >> $GITHUB_ENV
+          else
+            echo "Unexpected branch ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle
+        run: |
+          databricks bundle validate --target ${TARGET}
+
+      - name: Plan bundle
+        run: |
+          databricks bundle plan --target ${TARGET}
+
+      - name: Deploy bundle
+        run: |
+          databricks bundle deploy --target ${TARGET}
