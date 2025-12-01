@@ -36,5 +36,5 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Run Databricks CLI commands
-        run: databricks current-user me
+      - name: Verify Databricks CLI installation
+        run: databricks --version
