@@ -38,8 +38,8 @@ jobs:
 
       - name: Validate bundle
         run: |
-          databricks bundle validate --target dev
+          databricks bundle validate
 
       - name: Plan bundle
         run: |
-          databricks bundle plan --target dev
+          databricks bundle plan
