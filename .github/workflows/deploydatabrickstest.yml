@@ -27,7 +27,7 @@ jobs:
       # Tell Databricks CLI to use GitHub OIDC
       DATABRICKS_AUTH_TYPE: github-oidc
       DATABRICKS_HOST: https://dbc-44d88950-fd99.cloud.databricks.com/
-      DATABRICKS_CLIENT_ID: 96768318-55b5-43bb-b4da-7e1f922b5e51
+      DATABRICKS_CLIENT_ID: a776f70d-840e-405a-9f00-e0db59462c33
 
     steps:
       - name: Checkout code
